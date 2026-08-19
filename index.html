@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caderno de Campo — ACE Fortaleza</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --paper: #E8E2CC;
+    --paper-dark: #DDD5B8;
+    --ink: #24321F;
+    --ink-soft: #4B5940;
+    --line: #B9AD85;
+    --stamp-red: #A8392B;
+    --field-green: #3C6B45;
+    --field-green-dark: #2A4D31;
+    --alert-amber: #C8912E;
+    --card: #F1ECD9;
+    --shadow: rgba(36,50,31,0.18);
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse at top left, rgba(255,255,255,0.25), transparent 60%),
+      var(--paper);
+    background-blend-mode: multiply;
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    padding: 0 0 60px;
+  }
+
+  /* subtle paper texture */
+  body::before{
+    content:"";
+    position: fixed; inset:0;
+    background-image: repeating-linear-gradient(0deg, rgba(36,50,31,0.02) 0px, rgba(36,50,31,0.02) 1px, transparent 1px, transparent 3px);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  header{
+    position:relative;
+    padding: 36px 20px 24px;
+    border-bottom: 3px solid var(--ink);
+    background: var(--paper-dark);
+    z-index:1;
+  }
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 6px;
+  }
+
+  h1{
+    font-family: 'Special Elite', 'IBM Plex Mono', monospace;
+    font-size: clamp(26px, 6vw, 38px);
+    margin: 0 0 4px;
+    letter-spacing: 0.01em;
+  }
+
+  .subtitle{
+    margin:0;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    max-width: 46ch;
+  }
+
+  .dossier-stamp{
+    position:absolute;
+    top: 30px; right: 18px;
+    width: 78px; height:78px;
+    border: 3px solid var(--stamp-red);
+    border-radius: 50%;
+    color: var(--stamp-red);
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    font-family:'Special Elite', monospace;
+    font-size: 10px;
+    line-height:1.2;
+    transform: rotate(-12deg);
+    opacity: 0.85;
+    letter-spacing: 0.03em;
+  }
+
+  main{ max-width: 720px; margin: 0 auto; padding: 22px 16px 0; position:relative; z-index:1; }
+
+  /* Overview */
+  .overview{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 18px 18px 16px;
+    margin-bottom: 22px;
+    box-shadow: 0 2px 0 var(--shadow);
+  }
+
+  .overview-row{
+    display:flex; justify-content: space-between; align-items:baseline;
+    margin-bottom: 10px;
+  }
+
+  .overview-row h2{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin:0;
+    color: var(--ink-soft);
+  }
+
+  .overview-pct{
+    font-family:'Special Elite', monospace;
+    font-size: 22px;
+    color: var(--field-green-dark);
+  }
+
+  .bar-track{
+    height: 10px;
+    background: rgba(36,50,31,0.12);
+    border-radius: 2px;
+    overflow:hidden;
+    border: 1px solid var(--line);
+  }
+  .bar-fill{
+    height: 100%;
+    background: var(--field-green);
+    width: 0%;
+    transition: width 0.35s ease;
+  }
+
+  .stat-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .stat-box{
+    text-align:center;
+    padding: 8px 4px;
+    border: 1px dashed var(--line);
+    border-radius: 3px;
+  }
+  .stat-box .num{
+    font-family:'Special Elite', monospace;
+    font-size: 19px;
+    display:block;
+    color: var(--ink);
+  }
+  .stat-box .label{
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+  }
+
+  /* Subject cards */
+  .subject{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 0 var(--shadow);
+  }
+
+  .subject-head{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    padding: 13px 14px;
+    cursor: pointer;
+    user-select:none;
+    border-bottom: 1px solid transparent;
+  }
+  .subject.open .subject-head{ border-bottom-color: var(--line); }
+
+  .subject-index{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    min-width: 20px;
+  }
+
+  .subject-title-wrap{ flex:1; min-width:0; }
+  .subject-title{
+    font-weight:600;
+    font-size: 14.5px;
+    margin:0 0 5px;
+  }
+
+  .subject-bar-track{
+    height:6px;
+    background: rgba(36,50,31,0.1);
+    border-radius:2px;
+    overflow:hidden;
+  }
+  .subject-bar-fill{
+    height:100%;
+    background: var(--alert-amber);
+    width:0%;
+    transition: width 0.3s ease;
+  }
+
+  .subject-pct{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    min-width: 34px;
+    text-align:right;
+  }
+
+  .chevron{
+    font-size: 12px;
+    color: var(--ink-soft);
+    transition: transform 0.2s ease;
+  }
+  .subject.open .chevron{ transform: rotate(90deg); }
+
+  .subject-body{
+    display:none;
+    padding: 4px 14px 14px;
+  }
+  .subject.open .subject-body{ display:block; }
+
+  .topic-row{
+    display:flex;
+    align-items:flex-start;
+    gap: 10px;
+    padding: 8px 2px;
+    border-bottom: 1px solid rgba(185,173,133,0.4);
+  }
+  .topic-row:last-of-type{ border-bottom:none; }
+
+  .topic-row input[type=checkbox]{
+    appearance:none;
+    width:17px; height:17px;
+    min-width:17px;
+    border: 2px solid var(--ink-soft);
+    border-radius: 2px;
+    margin-top: 2px;
+    cursor:pointer;
+    position:relative;
+    background: transparent;
+  }
+  .topic-row input[type=checkbox]:checked{
+    background: var(--field-green);
+    border-color: var(--field-green-dark);
+  }
+  .topic-row input[type=checkbox]:checked::after{
+    content:"✓";
+    color:#fff;
+    font-size:12px;
+    position:absolute;
+    left:2px; top:-2px;
+  }
+
+  .topic-label{
+    font-size: 13.5px;
+    line-height:1.4;
+    cursor:pointer;
+  }
+  .topic-row.done .topic-label{
+    color: var(--ink-soft);
+    text-decoration: line-through;
+    text-decoration-color: var(--field-green);
+  }
+
+  /* Question tracker */
+  .qtracker{
+    margin-top: 10px;
+    padding: 12px 12px 10px;
+    background: rgba(200,145,46,0.08);
+    border: 1px dashed var(--alert-amber);
+    border-radius: 3px;
+  }
+  .qtracker-title{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    margin: 0 0 8px;
+  }
+  .qtracker-row{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    flex-wrap: wrap;
+  }
+  .qtracker-row label{
+    font-size: 12px;
+    color: var(--ink-soft);
+    display:flex;
+    flex-direction: column;
+    gap:3px;
+  }
+  .qtracker-row input[type=number]{
+    width: 64px;
+    padding: 5px 6px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--paper);
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .qtracker-accuracy{
+    margin-left: auto;
+    text-align:right;
+    font-family:'Special Elite', monospace;
+    font-size: 16px;
+    color: var(--field-green-dark);
+  }
+  .qtracker-accuracy .lbl{
+    display:block;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size: 9.5px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color: var(--ink-soft);
+  }
+
+  .completed-stamp{
+    display:none;
+    font-family:'Special Elite', monospace;
+    font-size: 10px;
+    color: var(--field-green-dark);
+    border: 2px solid var(--field-green);
+    border-radius: 50%;
+    width: 34px; height:34px;
+    align-items:center; justify-content:center;
+    text-align:center;
+    transform: rotate(-10deg);
+    line-height:1.1;
+    opacity: 0.9;
+  }
+  .subject.complete .completed-stamp{ display:flex; }
+
+  footer{
+    max-width:720px;
+    margin: 20px auto 0;
+    padding: 0 16px;
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    gap: 10px;
+  }
+  .reset-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing:0.05em;
+    color: var(--stamp-red);
+    background: none;
+    border: 1px solid var(--stamp-red);
+    padding: 8px 12px;
+    border-radius: 3px;
+    cursor:pointer;
+  }
+  .reset-btn:active{ opacity:0.7; }
+
+  .save-note{
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-family:'IBM Plex Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Prefeitura de Fortaleza · Pré-edital</p>
+  <h1>Caderno de Campo do ACE</h1>
+  <p class="subtitle">Acompanhamento de estudo por matéria e registro de questões resolvidas. Marque o que já estudou e lance seus acertos — o progresso é salvo automaticamente.</p>
+  <div class="dossier-stamp">EM<br>PREPARO</div>
+</header>
+
+<main>
+  <section class="overview">
+    <div class="overview-row">
+      <h2>Progresso geral do conteúdo</h2>
+      <span class="overview-pct" id="overallPct">0%</span>
+    </div>
+    <div class="bar-track"><div class="bar-fill" id="overallBar"></div></div>
+    <div class="stat-grid">
+      <div class="stat-box"><span class="num" id="statTopics">0/0</span><span class="label">Tópicos estudados</span></div>
+      <div class="stat-box"><span class="num" id="statQuestions">0</span><span class="label">Questões resolvidas</span></div>
+      <div class="stat-box"><span class="num" id="statAccuracy">—</span><span class="label">Acerto geral</span></div>
+    </div>
+  </section>
+
+  <div id="subjectsContainer"></div>
+</main>
+
+<footer>
+  <span class="save-note" id="saveNote">salvo</span>
+  <button class="reset-btn" id="resetBtn">Zerar progresso</button>
+</footer>
+
+<script>
+const SUBJECTS = [
+  {
+    id: "portugues",
+    title: "Língua Portuguesa",
+    topics: [
+      "Compreensão e interpretação de texto",
+      "Tipologia e gêneros textuais",
+      "Coesão, coerência e estrutura textual",
+      "Ortografia e acentuação",
+      "Classes de palavras e morfologia",
+      "Sintaxe: concordância, regência e crase",
+      "Pontuação"
+    ]
+  },
+  {
+    id: "gerais",
+    title: "Conhecimentos Gerais / Atualidades",
+    topics: [
+      "História e geografia de Fortaleza/CE",
+      "Atualidades: política, saúde e meio ambiente",
+      "Estrutura administrativa da Prefeitura de Fortaleza"
+    ]
+  },
+  {
+    id: "legislacao",
+    title: "Legislação e SUS",
+    topics: [
+      "Lei nº 8.080/1990 — Lei Orgânica da Saúde",
+      "Lei nº 11.350/2006 — regulamenta a profissão de ACE",
+      "Política Nacional de Atenção Básica (PNAB)",
+      "Princípios e diretrizes do SUS",
+      "Redes de Atenção à Saúde"
+    ]
+  },
+  {
+    id: "vigilancia",
+    title: "Vigilância em Saúde",
+    topics: [
+      "Conceitos: endemia, epidemia, pandemia",
+      "Vigilância epidemiológica",
+      "Vigilância sanitária e ambiental",
+      "Doenças de notificação compulsória",
+      "Indicadores demográficos e de saúde",
+      "Sistemas de informação em saúde (SINAN e outros)"
+    ]
+  },
+  {
+    id: "saneamento",
+    title: "Saneamento e Meio Ambiente",
+    topics: [
+      "Padrões de potabilidade da água",
+      "Tratamento e destinação do lixo / reciclagem",
+      "Poluição e desmatamento",
+      "Educação ambiental e mobilização social"
+    ]
+  },
+  {
+    id: "doencas",
+    title: "Doenças e Vetores (Específicas)",
+    topics: [
+      "Dengue, Zika e Chikungunya (Aedes aegypti)",
+      "Febre Amarela",
+      "Malária",
+      "Leishmaniose Tegumentar e Visceral",
+      "Doença de Chagas",
+      "Esquistossomose",
+      "Leptospirose",
+      "Febre Maculosa",
+      "Raiva e controle de morcegos",
+      "Cólera e Febre Tifoide",
+      "Escorpionismo e ofidismo",
+      "Controle populacional de cães e gatos"
+    ]
+  },
+  {
+    id: "atribuicoes",
+    title: "Atribuições do ACE",
+    topics: [
+      "História e evolução da profissão de ACE",
+      "Atribuições legais do agente",
+      "Cadastramento familiar e territorial",
+      "Trabalho em equipe e segurança no trabalho",
+      "Educação em saúde e mobilização comunitária"
+    ]
+  }
+];
+
+const STORAGE_KEY = "ace-fortaleza-tracker-v1";
+let state = { topics: {}, questions: {} };
+let saveTimer = null;
+
+function defaultState(){
+  const s = { topics: {}, questions: {} };
+  SUBJECTS.forEach(subj => {
+    subj.topics.forEach((_, i) => { s.topics[subj.id + "-" + i] = false; });
+    s.questions[subj.id] = { total: 0, correct: 0 };
+  });
+  return s;
+}
+
+async function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      const base = defaultState();
+      state = {
+        topics: Object.assign(base.topics, parsed.topics || {}),
+        questions: Object.assign(base.questions, parsed.questions || {})
+      };
+    } else {
+      state = defaultState();
+    }
+  } catch(e){
+    state = defaultState();
+  }
+}
+
+async function saveState(){
+  const note = document.getElementById("saveNote");
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    note.textContent = "salvo neste navegador";
+  } catch(e){
+    note.textContent = "erro ao salvar";
+  }
+}
+
+function queueSave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveState, 300);
+}
+
+function subjectProgress(subj){
+  const keys = subj.topics.map((_, i) => subj.id + "-" + i);
+  const done = keys.filter(k => state.topics[k]).length;
+  return { done, total: keys.length, pct: keys.length ? Math.round((done/keys.length)*100) : 0 };
+}
+
+function renderSubjects(){
+  const container = document.getElementById("subjectsContainer");
+  container.innerHTML = "";
+
+  SUBJECTS.forEach((subj, sIdx) => {
+    const prog = subjectProgress(subj);
+    const q = state.questions[subj.id] || { total: 0, correct: 0 };
+    const acc = q.total > 0 ? Math.round((q.correct / q.total) * 100) : null;
+
+    const el = document.createElement("div");
+    el.className = "subject" + (prog.pct === 100 ? " complete" : "");
+    el.dataset.subjectId = subj.id;
+
+    el.innerHTML = `
+      <div class="subject-head" data-toggle="${subj.id}">
+        <span class="subject-index">${String(sIdx+1).padStart(2,"0")}</span>
+        <div class="subject-title-wrap">
+          <p class="subject-title">${subj.title}</p>
+          <div class="subject-bar-track"><div class="subject-bar-fill" style="width:${prog.pct}%"></div></div>
+        </div>
+        <span class="subject-pct">${prog.done}/${prog.total}</span>
+        <div class="completed-stamp">FEITO</div>
+        <span class="chevron">▶</span>
+      </div>
+      <div class="subject-body">
+        ${subj.topics.map((t, i) => {
+          const key = subj.id + "-" + i;
+          const checked = state.topics[key];
+          return `
+            <div class="topic-row ${checked ? "done" : ""}" data-key="${key}">
+              <input type="checkbox" id="chk-${key}" ${checked ? "checked" : ""}>
+              <label class="topic-label" for="chk-${key}">${t}</label>
+            </div>
+          `;
+        }).join("")}
+        <div class="qtracker">
+          <p class="qtracker-title">Questões resolvidas — ${subj.title}</p>
+          <div class="qtracker-row">
+            <label>Total resolvidas
+              <input type="number" min="0" class="q-total" data-subject="${subj.id}" value="${q.total}">
+            </label>
+            <label>Acertos
+              <input type="number" min="0" class="q-correct" data-subject="${subj.id}" value="${q.correct}">
+            </label>
+            <div class="qtracker-accuracy">
+              <span class="lbl">Acerto</span>
+              <span class="acc-val">${acc === null ? "—" : acc + "%"}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    container.appendChild(el);
+  });
+
+  attachHandlers();
+  updateOverview();
+}
+
+function attachHandlers(){
+  document.querySelectorAll(".subject-head").forEach(head => {
+    head.addEventListener("click", (e) => {
+      if(e.target.tagName === "INPUT") return;
+      head.closest(".subject").classList.toggle("open");
+    });
+  });
+
+  document.querySelectorAll(".topic-row input[type=checkbox]").forEach(chk => {
+    chk.addEventListener("change", (e) => {
+      const key = e.target.closest(".topic-row").dataset.key;
+      state.topics[key] = e.target.checked;
+      e.target.closest(".topic-row").classList.toggle("done", e.target.checked);
+      const subjEl = e.target.closest(".subject");
+      const subjId = subjEl.dataset.subjectId;
+      const subj = SUBJECTS.find(s => s.id === subjId);
+      const prog = subjectProgress(subj);
+      subjEl.querySelector(".subject-bar-fill").style.width = prog.pct + "%";
+      subjEl.querySelector(".subject-pct").textContent = `${prog.done}/${prog.total}`;
+      subjEl.classList.toggle("complete", prog.pct === 100);
+      updateOverview();
+      queueSave();
+    });
+  });
+
+  document.querySelectorAll(".q-total, .q-correct").forEach(inp => {
+    inp.addEventListener("input", (e) => {
+      const subjId = e.target.dataset.subject;
+      let total = parseInt(document.querySelector(`.q-total[data-subject="${subjId}"]`).value) || 0;
+      let correct = parseInt(document.querySelector(`.q-correct[data-subject="${subjId}"]`).value) || 0;
+      if(correct > total) correct = total;
+      state.questions[subjId] = { total, correct };
+      const acc = total > 0 ? Math.round((correct/total)*100) : null;
+      const subjEl = e.target.closest(".subject");
+      subjEl.querySelector(".acc-val").textContent = acc === null ? "—" : acc + "%";
+      updateOverview();
+      queueSave();
+    });
+  });
+}
+
+function updateOverview(){
+  let doneTotal = 0, topicsTotal = 0, qTotal = 0, qCorrect = 0;
+  SUBJECTS.forEach(subj => {
+    const prog = subjectProgress(subj);
+    doneTotal += prog.done;
+    topicsTotal += prog.total;
+    const q = state.questions[subj.id] || { total:0, correct:0 };
+    qTotal += q.total;
+    qCorrect += q.correct;
+  });
+  const overallPct = topicsTotal ? Math.round((doneTotal/topicsTotal)*100) : 0;
+  document.getElementById("overallPct").textContent = overallPct + "%";
+  document.getElementById("overallBar").style.width = overallPct + "%";
+  document.getElementById("statTopics").textContent = `${doneTotal}/${topicsTotal}`;
+  document.getElementById("statQuestions").textContent = qTotal;
+  document.getElementById("statAccuracy").textContent = qTotal > 0 ? Math.round((qCorrect/qTotal)*100) + "%" : "—";
+}
+
+document.getElementById("resetBtn").addEventListener("click", async () => {
+  if(!confirm("Isso vai zerar todo o progresso salvo. Confirmar?")) return;
+  state = defaultState();
+  await saveState();
+  renderSubjects();
+});
+
+(async function init(){
+  await loadState();
+  renderSubjects();
+  // open first subject by default
+  const first = document.querySelector(".subject");
+  if(first) first.classList.add("open");
+})();
+</script>
+
+</body>
+</html>
